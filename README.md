@@ -1,4 +1,4 @@
-Capstone Project Repository (Public Ver.)
+<b>Capstone Project Repository (Public Ver.)</b>
 
 There are three programs to run for the system to work:
 <br>1. client
