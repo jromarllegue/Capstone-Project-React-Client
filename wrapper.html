@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Output</title>
+    <base target="_parent">
+
+    <script>
+        const loadedFiles = new Set();
+    
+        window.addEventListener('message', function(event) {
+            if (event.data.type === 'loadFile') {
+                loadFile(event.data.path);
+            }
+        });
+
+
+        async function loadFile(path) {
+            console.log(path);
+            if (loadedFiles.has(path)) return consoley.log('already loaded');
+            loadedFiles.add(path);
+    
+            const response = await fetch(`http://localhost:5000/api/file${path}`);
+            const content = await response.text();
+    
+            if (path.endsWith('.html')) {
+                document.body.innerHTML = content;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(content, 'text/html');
+                const scripts = doc.getElementsByTagName('script');
+                const links = doc.getElementsByTagName('link');
+    
+                for (let script of scripts) {
+                    console.log(script.src);
+                    if (script.src) {
+                        loadExternalResource(script.src, 'script');
+                    } else {
+                        loadFile(`${path.substring(0, path.lastIndexOf('/'))}/${script.getAttribute('src')}`);
+                    }
+                }
+    
+                for (let link of links) {
+                    if (link.rel === 'stylesheet') {
+                        console.log(link.href);
+                        if (link.href.startsWith('http')) {
+                            loadExternalResource(link.href, 'style');
+                        } else {
+                            loadFile(`${path.substring(0, path.lastIndexOf('/'))}/${link.getAttribute('href')}`);
+                        }
+                    }
+                }
+            } else if (path.endsWith('.js')) {
+                const script = document.createElement('script');
+                script.textContent = content;
+                document.body.appendChild(script);
+            } else if (path.endsWith('.css')) {
+                const style = document.createElement('style');
+                style.textContent = content;
+                document.head.appendChild(style);
+            }
+        }
+    
+        function loadExternalResource(url, type) {
+            if (type === 'script') {
+                const script = document.createElement('script');
+                script.src = url;
+                document.body.appendChild(script);
+            } else if (type === 'style') {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                document.head.appendChild(link);
+            }
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
