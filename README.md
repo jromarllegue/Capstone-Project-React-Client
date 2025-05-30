@@ -1,4 +1,5 @@
-<b>Capstone Project Repository (Public Ver.)</b>
+<h3>Capstone Project Repository (Public Ver.)</h3>
+<b>Title: Real-Time Collaborative Coding Website for Hypertext Markup Language, Cascading Style Sheets, and JavaScript Team Projects</b>
 
 There are three programs to run for the system to work:
 <br>1. client
